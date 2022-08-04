@@ -7,16 +7,17 @@ import lombok.ToString;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-public class DadosCliente implements Serializable {
+public class CartaoAprovado implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
-    private String nome;
-    private Integer idade;
+    private String cartao;
+    private String bandeira;
+    private BigDecimal limiteAprovado;
 }

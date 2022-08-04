@@ -12,11 +12,10 @@ import java.io.Serializable;
 @Setter
 @ToString
 @NoArgsConstructor
-public class DadosCliente implements Serializable {
+public class DadosAvaliacao implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
-    private String nome;
-    private Integer idade;
+    private String cpf;
+    private Long renda;
 }
