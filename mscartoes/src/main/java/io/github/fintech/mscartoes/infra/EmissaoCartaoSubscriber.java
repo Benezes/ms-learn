@@ -1,5 +1,6 @@
 package io.github.fintech.mscartoes.infra;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -16,26 +17,28 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EmissaoCartaoSubscriber {
 
-	private final ObjectMapper mapper;
-	private final CartaoRepository cartaoRepository;
-	private final ClienteCartaoRepository clienteCartaoRepository;
+    private final ObjectMapper mapper;
+    private final CartaoRepository cartaoRepository;
+    private final ClienteCartaoRepository clienteCartaoRepository;
 
-	@RabbitListener(queues = "${mq.queues.emissao-cartoes}")
-	public void receberSolicitacaoEmissao(@Payload String payload) {
-		try {
-			DadosSolicitacaoEmissaoCartao dados = mapper.readValue(payload, DadosSolicitacaoEmissaoCartao.class);
-			Cartao cartao = cartaoRepository.findById(dados.getIdCartao()).orElseThrow();
+    @RabbitListener(queues = "${mq.queues.emissao-cartoes}")
+    public void receberSolicitacaoEmissao(@Payload String payload) {
+        try {
+            DadosSolicitacaoEmissaoCartao dados = mapper.readValue(payload, DadosSolicitacaoEmissaoCartao.class);
+            Cartao cartao = cartaoRepository.findById(dados.getIdCartao()).orElseThrow();
 
-			ClienteCartao clienteCartao = new ClienteCartao();
-			clienteCartao.setCartao(cartao);
-			clienteCartao.setCpf(dados.getCpf());
-			clienteCartao.setLimite(dados.getLimiteLiberado());
-			clienteCartaoRepository.save(clienteCartao);
+            ClienteCartao clienteCartao = new ClienteCartao();
+            clienteCartao.setCartao(cartao);
+            clienteCartao.setCpf(dados.getCpf());
+            clienteCartao.setLimite(dados.getLimiteLiberado());
+            clienteCartaoRepository.save(clienteCartao);
+            log.info("Cartão cadastrado: {}", clienteCartao.toString());
 
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (JsonProcessingException e) {
+            log.error("Erro ao receber a solicitação da emissão do cartão: {}", e.getMessage());
+        }
+    }
 }
